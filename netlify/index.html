@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>尸潮二十日：末日生存文字游戏</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",Arial,sans-serif;background:#07100d;color:#e9f5ea;line-height:1.65}.app{max-width:1180px;margin:auto;padding:20px}.screen{display:none}.active{display:block}.hero,.card,.panel,.game,.result{background:linear-gradient(180deg,#14221d,#0d1714);border:1px solid #2d453b;border-radius:20px;box-shadow:0 14px 35px #0008;padding:22px;margin:14px 0}h1{margin:0;font-size:30px}h2{margin:0 0 12px}h3{margin:16px 0 8px;color:#bdf5bd}.muted{color:#9bb3a5}.btn{border:1px solid #4a6959;background:#1b2c25;color:#efffed;border-radius:12px;padding:10px 14px;margin:5px;cursor:pointer;font-weight:700}.btn:hover,.sel{border-color:#8cff76;background:#254334}.primary{background:#70d05f;color:#07100d;border:0}.danger{background:#6d2222}.blue{background:#1f4d69}.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.choice{background:#0c1714;border:1px solid #2d453b;border-radius:16px;padding:14px;cursor:pointer}.tag{display:inline-block;border:1px solid #47704f;background:#1b3024;color:#c9ffc7;border-radius:999px;padding:3px 8px;font-size:12px;margin:3px}.layout{display:grid;grid-template-columns:330px 1fr;gap:14px}.stat{background:#08110e;border:1px solid #2d453b;border-radius:12px;padding:8px;margin:7px 0}.bar{height:8px;background:#27362f;border-radius:99px;overflow:hidden}.fill{height:100%;background:#83e36b}.bad{background:#ff5b5b}.warn{background:#ffb85b}.story{white-space:pre-wrap;background:#08110e;border:1px solid #2d453b;border-radius:14px;padding:14px;min-height:140px}.option{background:#0b1512;border:1px solid #2d453b;border-radius:13px;padding:12px;margin:9px 0;cursor:pointer}.option:hover,.option.sel{border-color:#8cff76;background:#1b3425}textarea,input{width:100%;background:#08110e;color:#e9f5ea;border:1px solid #2d453b;border-radius:12px;padding:10px;margin:8px 0}textarea{min-height:90px;resize:vertical}.kv{display:flex;justify-content:space-between;border-bottom:1px dashed #2d453b;padding:5px 0}.list div,.log div{border-bottom:1px dashed #263b32;padding:5px 0}.log{max-height:300px;overflow:auto;background:#08110e;border:1px solid #2d453b;border-radius:14px;padding:10px;font-size:13px}.shoprow{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;border-bottom:1px solid #2d453b;padding:8px}.toast{position:fixed;right:16px;bottom:16px;background:#14221d;border:1px solid #83e36b;border-radius:12px;padding:10px;display:none}.notice{background:#21170e;border:1px solid #67451e;border-radius:14px;padding:12px;color:#ffd9a1}
+.charbar{
+  background:linear-gradient(135deg,#101c18,#0b1512);
+  border:1px solid #365447;
+  border-radius:18px;
+  padding:14px;
+  margin:12px 0 18px;
+  box-shadow:0 10px 28px #0007;
+}
+.charbar h3{margin:0 0 10px;color:#dfffdc}
+.chargrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.charitem{background:#08110e;border:1px solid #2d453b;border-radius:12px;padding:10px}
+.charitem span{display:block;color:#9bb3a5;font-size:12px}
+.charitem b{display:block;margin-top:3px;color:#e9f5ea}
+.chardetail{margin-top:10px;color:#b9cec0;font-size:13px}
+
+.shopHint{color:#9bb3a5;font-size:13px;margin:6px 0 12px}
+.shopTabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.shopTabs button{border:1px solid #365447;background:#0b1512;color:#dceee2;border-radius:999px;padding:7px 10px;cursor:pointer}
+.shopTabs button.active{background:#254334;border-color:#8cff76;color:#eaffea}
+.packGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+.pack{background:#0b1512;border:1px solid #2d453b;border-radius:14px;padding:11px}
+.pack b{color:#dfffdc}
+.pack .muted{font-size:12px}
+.itemSimple{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;border-bottom:1px solid #263b32;padding:9px 4px}
+.itemSimple:last-child{border-bottom:0}
+.price{color:#ffd08a;font-weight:700}
+.weight{color:#9bb3a5;font-size:12px}
+.bagSummary{background:#08110e;border:1px solid #2d453b;border-radius:12px;padding:10px;margin:8px 0}
+
+.bagItem{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;border-bottom:1px dashed #263b32;padding:6px 0}
+.removeBtn{border:1px solid #7a3a3a;background:#351818;color:#ffd2d2;border-radius:9px;padding:5px 8px;cursor:pointer;font-size:12px}
+.removeBtn:hover{background:#512020;border-color:#ff7474}
+.refundText{color:#ffd08a;font-size:12px}
+
+
+.usePanel{
+  display:none;
+  margin-top:12px;
+  background:#08110e;
+  border:1px solid #365447;
+  border-radius:16px;
+  padding:12px;
+}
+.usePanel.active{display:block}
+.useHeader{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.useHeader b{color:#dfffdc}
+.useRow{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+  border-bottom:1px dashed #263b32;
+  padding:8px 0;
+}
+.useRow:last-child{border-bottom:0}
+.useMeta{color:#9bb3a5;font-size:12px}
+.qtyBox{display:flex;align-items:center;gap:6px}
+.qtyBtn{
+  width:28px;height:28px;
+  border:1px solid #456b58;
+  background:#13241d;
+  color:#e9f5ea;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:800;
+}
+.qtyBtn:hover{border-color:#8cff76;background:#254334}
+.qtyNum{
+  min-width:28px;
+  text-align:center;
+  font-weight:800;
+  color:#dfffdc;
+}
+.useBtn{
+  border:1px solid #4a6959;
+  background:#23452f;
+  color:#eaffea;
+  border-radius:9px;
+  padding:7px 9px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:800;
+}
+.useBtn:hover{border-color:#8cff76;background:#2e5a3d}
+.useEmpty{color:#9bb3a5;font-size:13px;padding:8px 0}
+
+
+.lootBox{
+  margin-top:12px;
+  background:linear-gradient(135deg,#10281b,#0b1512);
+  border:1px solid #5b8d4e;
+  border-radius:15px;
+  padding:12px;
+  color:#eaffea;
+}
+.lootBox h3{margin:0 0 8px;color:#dfffdc}
+.lootGrid{display:flex;flex-wrap:wrap;gap:8px}
+.lootTag{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:#183b24;
+  border:1px solid #75c66b;
+  border-radius:999px;
+  padding:5px 10px;
+  color:#dcffd8;
+  font-size:13px;
+}
+.lootTag.lost{
+  background:#3a1818;
+  border-color:#bb5353;
+  color:#ffd0d0;
+}
+.resultBox{
+  margin-top:12px;
+  background:#08110e;
+  border:1px solid #365447;
+  border-radius:15px;
+  padding:12px;
+}
+.resultBoxTitle{
+  color:#dfffdc;
+  font-weight:800;
+  margin-bottom:6px;
+}
+
+@media(max-width:850px){.packGrid{grid-template-columns:1fr}.itemSimple{grid-template-columns:1fr auto}}
+
+@media(max-width:850px){.chargrid{grid-template-columns:1fr 1fr}}
+
+@media(max-width:850px){.g2,.g3,.g4,.layout{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body><div class="app">
+<div class="hero"><h1>☣ 尸潮二十日</h1><div class="muted">末日丧尸生存文字游戏｜20天生存｜本地模拟AI + 可选Netlify真实AI接口</div><button class="btn primary" onclick="show('origin')">开始游戏</button><button class="btn blue" onclick="loadGame()">读取存档</button><button class="btn danger" onclick="resetGame()">重开</button></div>
+
+<div id="characterInfoBar" class="charbar">
+  <h3>角色信息栏</h3>
+  <div class="chargrid">
+    <div class="charitem"><span>出生点</span><b id="charOrigin">未选择</b></div>
+    <div class="charitem"><span>职业</span><b id="charCareer">未选择</b></div>
+    <div class="charitem"><span>预计金钱</span><b id="charMoney">0</b></div>
+    <div class="charitem"><span>背包容量</span><b id="charCapacity">20</b></div>
+  </div>
+  <div id="charDetails" class="chardetail">请选择出生点和职业，系统会在这里实时生成角色开局信息。</div>
+</div>
+
+<section id="start" class="screen active">
+<div class="hero"><h2>背景</h2><p>“灰雨病毒”爆发后第七天，城市秩序崩溃。医院、学校、商场、农村、孤岛都变成不同形式的牢笼。你只是一个普通幸存者，需要管理生命、饥饿、口渴、卫生、精神、体力、感染、金钱、声望和危险等级，在20天内找到安全区信号、完成撤离或建立据点。</p><div class="notice">每天你可以选择4个行动之一，也可以输入自由行动。若部署OpenAI接口，后端AI会判断剧情；否则本地模拟AI也可完整游玩。</div></div>
+</section>
+
+<section id="origin" class="screen"><div class="hero"><h2>选择出生点</h2><p class="muted">每个地点都有资源和代价。</p></div><div id="originBox" class="grid g4"></div><button class="btn" onclick="show('start')">返回</button><button class="btn primary" onclick="confirmOrigin()">确认出生点</button></section>
+<section id="career" class="screen"><div class="hero"><h2>选择职业</h2><p class="muted">没有无敌职业，每种都有优势和弱点。</p></div><div id="careerBox" class="grid g3"></div><button class="btn" onclick="show('origin')">返回</button><button class="btn primary" onclick="confirmCareer()">确认职业</button></section>
+<section id="shop" class="screen"><div class="hero"><h2>开局商店</h2><p class="muted">商店已精简为“推荐套装 + 分类单品”。本版降低生存压力并适当增加金钱：开局可以买到基础补给和1类核心装备，但仍需要取舍。</p><div class="notice"><b>负重规则：</b>基础容量 20。水和罐头约 1 负重；药片、地图等很轻；工具、武器、防护服、燃油较重；背包自身占重但会增加容量。</div></div><div class="layout"><div class="panel"><h3>商店</h3><div id="shopBox"></div></div><div class="panel"><h3>背包</h3><div class="kv"><span>金钱</span><b id="moneyS"></b></div><div class="kv"><span>负重</span><b id="weightS"></b></div><div id="bagS" class="list"></div><button class="btn primary" onclick="startGame()">进入第1天</button></div></div></section>
+
+<section id="game" class="screen"><div class="layout">
+<aside class="panel"><h3>状态</h3><div id="stats"></div><div class="kv"><span>天数</span><b id="daySide"></b></div><div class="kv"><span>地点</span><b id="originSide"></b></div><div class="kv"><span>职业</span><b id="careerSide"></b></div><h3>背包</h3><div id="bag" class="list"></div><h3>任务</h3><div id="quests" class="list"></div><h3>伙伴/宠物</h3><div id="friends" class="list"></div></aside>
+<main class="game"><h2 id="dayTitle"></h2><div id="story" class="story"></div><div id="dayResultPanel"></div><h3>今日行动</h3><div id="opts"></div><textarea id="custom" placeholder="输入自由行动，例如：我先用地图规划路线，避开主街，去药店找绷带和抗生素。"></textarea><button id="goBtn" class="btn primary" onclick="submitAct()">提交行动</button><button class="btn blue" onclick="toggleUsePanel()">使用物品</button><button class="btn" onclick="restAct()">保守休息</button><button class="btn blue" onclick="saveGame()">保存</button>
+<div id="usePanel" class="usePanel"></div>
+<h3>日志</h3><div id="log" class="log"></div></main>
+</div></section>
+<section id="ending" class="screen"><div id="endingBox" class="result"></div></section>
+</div><div id="toast" class="toast"></div>
+
+<script>
+const USE_REMOTE_AI=true;
+const origins={
+city:{n:"城市公寓",d:24,m:50,t:["资源多","丧尸密度高","噪音风险"],r:["瓶装水","罐头","手电筒"],e:["邻居求救","楼道尸群","电梯故障"],mod:{danger:8,sanity:-3}},
+rural:{n:"农村小屋",d:12,m:35,t:["水井","农田","医疗少"],r:["净水片","压缩饼干","绳子"],e:["废弃农场","野狗","粮仓争夺"],mod:{danger:-5,hygiene:5}},
+school:{n:"学校宿舍",d:20,m:40,t:["食堂","医务室","封闭空间"],r:["能量棒","绷带","地图"],e:["广播室","实验室","被困学生"],mod:{sanity:-4,stamina:5}},
+villa:{n:"海边别墅",d:15,m:65,t:["安静","渔具","风暴"],r:["瓶装水","罐头","收音机"],e:["海上求救信号","暴雨","搁浅船只"],mod:{sanity:5,danger:-2}},
+castle:{n:"古堡",d:18,m:48,t:["防御强","食物少","结构复杂"],r:["小刀","睡袋","地图"],e:["地下室","旧武器库","神秘幸存者"],mod:{hygiene:-3,danger:3}},
+island:{n:"孤岛",d:8,m:32,t:["隔离","资源极少","逃离困难"],r:["过滤水壶","绳子"],e:["废弃灯塔","破船","海上风暴"],mod:{danger:-10,sanity:-6,thirst:8}},
+hospital:{n:"医院",d:30,m:42,t:["医疗丰富","感染高","丧尸密集"],r:["绷带","消毒剂","口罩"],e:["药房","手术室","感染病区"],mod:{infection:12,danger:12}},
+mall:{n:"商场",d:27,m:62,t:["物资丰富","冲突多","易包围"],r:["罐头","瓶装水","铁棍"],e:["地下停车场","超市争夺","广播求救"],mod:{danger:10,reputation:-2}}
+};
+const careers={
+doctor:{n:"医生",m:62,desc:"治疗强，战斗弱",skill:"急救：医疗效果+35%",items:["医疗包","抗生素","绷带"],mod:{hp:5,infection:-10,stamina:-5},tr:{medical:.3,combat:-.1}},
+police:{n:"警察",m:75,desc:"战斗强，易招敌意",skill:"威慑：对掠夺者成功率提高",items:["手枪","警棍","弹药"],mod:{stamina:8,danger:5},tr:{combat:.28}},
+engineer:{n:"工程师",m:68,desc:"修理加固强，精神压力高",skill:"修理通讯和发电机",items:["工具箱","电池","胶带"],mod:{sanity:-6,stamina:3},tr:{repair:.3}},
+chef:{n:"厨师",m:52,desc:"食物利用率高",skill:"食物效果+30%",items:["罐头","小刀","能量棒"],mod:{hunger:-8,sanity:3},tr:{food:.3}},
+student:{n:"学生",m:40,desc:"适应性高，钱少",skill:"学习快，隐藏选择更多",items:["背包","日记本","手机"],mod:{stamina:5,money:-10},tr:{learn:.25}},
+veteran:{n:"退伍军人",m:60,desc:"战斗体力抗压强，社交弱",skill:"战术生存",items:["军刀","野外生存包","睡袋"],mod:{stamina:15,sanity:8,hygiene:-8,reputation:-4},tr:{combat:.35,survival:.2}},
+merchant:{n:"商人",m:120,desc:"钱多交易强，战斗弱",skill:"交易价格更好",items:["打火机","贵重物","地图"],mod:{money:25,danger:4},tr:{trade:.35,combat:-.1}},
+farmer:{n:"农民",m:48,desc:"野外生存强，城市弱",skill:"野外更易获食物",items:["种子","镰刀","净水片"],mod:{hunger:-5,thirst:-5,stamina:5},tr:{survival:.3,food:.2}},
+reporter:{n:"记者",m:62,desc:"信息沟通强，战斗弱",skill:"更易发现线索",items:["相机","录音笔","地图"],mod:{sanity:-2,reputation:6},tr:{info:.3,social:.15}},
+drifter:{n:"流浪者",m:30,desc:"隐蔽搜索强，精神低",skill:"废墟搜索成功率提高",items:["破旧背包","小刀","旧毯子"],mod:{sanity:-12,stamina:6,danger:-3},tr:{stealth:.25,scavenge:.3}}
+};
+const items={
+"瓶装水":[8,1.0,"water",{thirst:-22}],"净水片":[12,0.2,"water",{thirst:-12,infection:-3}],"罐头":[10,1.0,"food",{hunger:-22}],"压缩饼干":[8,0.6,"food",{hunger:-18,stamina:4}],"能量棒":[7,0.4,"food",{hunger:-10,stamina:12}],"打火机":[9,0.2,"tool",{sanity:2}],"手电筒":[15,0.8,"tool",{danger:-3}],"电池":[8,0.3,"tool",{}],"睡袋":[16,2.0,"camp",{sanity:8,stamina:12}],"绳子":[10,1.2,"tool",{danger:-2}],
+"绷带":[9,0.3,"medical",{hp:10,infection:-2}],"医疗包":[28,1.2,"medical",{hp:28,infection:-8}],"止痛药":[14,0.2,"medical",{hp:8,sanity:6}],"抗生素":[24,0.2,"medical",{infection:-22}],"消毒剂":[16,0.6,"medical",{hygiene:18,infection:-8}],"口罩":[6,0.1,"medical",{infection:-3}],"酒精":[16,0.6,"medical",{hygiene:12,infection:-7}],"缝合针线":[18,0.2,"medical",{hp:16,infection:-5}],
+"小刀":[12,0.5,"weapon",{danger:-2}],"铁棍":[14,2.0,"weapon",{danger:-3}],"斧头":[22,3.0,"weapon",{danger:-5}],"工具箱":[26,3.5,"tool",{}],"撬棍":[18,2.2,"tool",{}],"胶带":[8,0.3,"tool",{}],"手摇电筒":[18,0.9,"tool",{danger:-3}],"对讲机":[30,0.8,"radio",{}],"收音机":[28,1.0,"radio",{}],"地图":[10,0.1,"info",{danger:-2}],
+"宠物口粮":[9,0.8,"pet",{}],"日记本":[5,0.3,"mental",{sanity:8}],"音乐播放器":[20,0.3,"mental",{sanity:14}],"防护服":[42,2.8,"armor",{infection:-12,hygiene:6}],"过滤水壶":[34,1.0,"water",{thirst:-18}],"简易陷阱材料":[18,2.5,"craft",{danger:-5}],"种子":[10,0.3,"farm",{}],"燃油":[26,3.0,"fuel",{}],"弹药":[25,0.8,"weapon",{danger:-6}],"手枪":[70,1.2,"weapon",{danger:-8}],"警棍":[18,1.1,"weapon",{danger:-4}],"军刀":[25,0.7,"weapon",{danger:-5}],"镰刀":[18,2.0,"tool",{danger:-3}],"贵重物":[40,0.4,"trade",{}],"相机":[24,0.6,"info",{reputation:2}],"录音笔":[18,0.2,"info",{}],"手机":[25,0.2,"info",{}],"背包":[25,1.0,"bag",{capacity:8}],"破旧背包":[0,0.8,"bag",{capacity:5}],"旧毯子":[5,1.5,"camp",{sanity:5,stamina:6}],"野外生存包":[35,2.5,"camp",{stamina:10,danger:-3}]
+};
+const friends={nurse:["护士","治疗效果提高",1,1],mechanic:["机械师","修理成功率提高",1,1],child:["小女孩","提高道德结局但需保护",1,1],soldier:["前士兵","战斗强但易冲突",1,1],dog:["流浪狗","警戒危险，提高精神",1,0]};
+const quests=["寻找安全区广播信号","修理通讯设备","找到撤离路线","获得交通工具或建立据点","最终撤离/防御"];
+const sidePool=["救助受伤幸存者","寻找失踪孩子","帮助医生获取药品","解救被困宠物","调查废弃实验室","探索地下避难所","与掠夺者谈判或战斗","帮助农场保护粮仓","寻找发电机燃油","修理海边灯塔信号"];
+let oSel=null,cSel=null,aSel=null,game={},useQty={};
+function C(n,min=0,max=100){return Math.max(min,Math.min(max,Math.round(n)))}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");scrollTo(0,0)}
+function T(m){let x=document.getElementById("toast");x.innerText=m;x.style.display="block";setTimeout(()=>x.style.display="none",2300)}
+function add(n,q=1){game.bag[n]=(game.bag[n]||0)+q}
+function has(n){return game.bag[n]>0}
+function rem(n){if(!has(n))return false;game.bag[n]--;if(game.bag[n]<=0)delete game.bag[n];return true}
+function recordPurchase(n,cost){
+  game.purchased=game.purchased||{};
+  game.paid=game.paid||{};
+  game.purchased[n]=(game.purchased[n]||0)+1;
+  game.paid[n]=(game.paid[n]||0)+cost;
+}
+function refundOne(n){
+  game.purchased=game.purchased||{};
+  game.paid=game.paid||{};
+  if(!game.purchased[n])return 0;
+  const refund=Math.max(0,Math.round((game.paid[n]||0)/game.purchased[n]));
+  game.purchased[n]--;
+  game.paid[n]=(game.paid[n]||0)-refund;
+  if(game.purchased[n]<=0){delete game.purchased[n];delete game.paid[n];}
+  return refund;
+}
+function removeShopItem(n){
+  if(!has(n))return;
+  if((game.purchased||{})[n]){
+    const refund=refundOne(n);
+    rem(n);
+    game.stats.money+=refund;
+    if(n==="背包")game.cap=Math.max(20,game.cap-8);
+    if(n==="破旧背包")game.cap=Math.max(20,game.cap-5);
+    T(`已删除 ${n}，退回 $${refund}`);
+  }else{
+    if(!confirm(`${n} 是出生点/职业初始物品，删除后不会退款。确定删除？`))return;
+    rem(n);
+    T(`已删除初始物品：${n}`);
+  }
+  updateShop();
+  renderCharacterInfo&&renderCharacterInfo();
+}
+function weight(){return Math.round(Object.entries(game.bag||{}).reduce((s,[n,q])=>s+(items[n]?.[1]||1)*q,0)*10)/10}
+function mods(m){for(let k in m){if(k=="money")game.stats.money+=m[k];else game.stats[k]=C((game.stats[k]||0)+m[k])}}
+
+function renderCharacterInfo(){
+  if(!document.getElementById("charOrigin")) return;
+  let ok = oSel || game.origin;
+  let ck = cSel || game.career;
+  let o = ok ? origins[ok] : null;
+  let c = ck ? careers[ck] : null;
+  let cap = 20;
+  let money = 0;
+  let details = [];
+  if(o){
+    money += o.m;
+    details.push(`出生点：${o.n}｜初始资源：${o.r.join("、")}｜特殊事件：${o.e.join("、")}`);
+  }
+  if(c){
+    money += c.m + (c.mod?.money || 0);
+    if(c.items.includes("背包")) cap += 8;
+    if(c.items.includes("破旧背包")) cap += 5;
+    details.push(`职业：${c.n}｜技能：${c.skill}｜职业物品：${c.items.join("、")}`);
+  }
+  if(game && game.stats && game.phase !== "setup"){
+    money = game.stats.money ?? money;
+    cap = game.cap ?? cap;
+  }
+  document.getElementById("charOrigin").innerText = o ? o.n : "未选择";
+  document.getElementById("charCareer").innerText = c ? c.n : "未选择";
+  document.getElementById("charMoney").innerText = money;
+  document.getElementById("charCapacity").innerText = cap;
+  document.getElementById("charDetails").innerHTML = details.length ? details.map(x=>`<div>${x}</div>`).join("") : "请选择出生点和职业，系统会在这里实时生成角色开局信息。";
+}
+
+function init(){
+originBox.innerHTML=Object.entries(origins).map(([k,o])=>`<div class="choice" data-o="${k}" onclick="pickO('${k}')"><h3>${o.n}</h3><div>${o.t.map(x=>`<span class=tag>${x}</span>`).join("")}</div><p class=muted>初始资源：${o.r.join("、")}</p><p class=muted>特殊事件：${o.e.join("、")}</p></div>`).join("");
+careerBox.innerHTML=Object.entries(careers).map(([k,c])=>`<div class="choice" data-c="${k}" onclick="pickC('${k}')"><h3>${c.n}</h3><p class=muted>${c.desc}</p><span class=tag>${c.skill}</span><p class=muted>金钱:${c.m}｜物品:${c.items.join("、")}</p></div>`).join("");
+}
+function pickO(k){oSel=k;document.querySelectorAll("[data-o]").forEach(x=>x.classList.remove("sel"));document.querySelector(`[data-o="${k}"]`).classList.add("sel");renderCharacterInfo()}
+function pickC(k){cSel=k;document.querySelectorAll("[data-c]").forEach(x=>x.classList.remove("sel"));document.querySelector(`[data-c="${k}"]`).classList.add("sel");renderCharacterInfo()}
+function confirmOrigin(){if(!oSel)return T("请选择出生点");show("career")}
+function confirmCareer(){if(!cSel)return T("请选择职业");setup();renderShop();show("shop")}
+function setup(){let o=origins[oSel],c=careers[cSel];game={day:1,max:20,origin:oSel,career:cSel,originName:o.n,careerName:c.n,cap:20,bag:{},purchased:{},paid:{},friends:[],side:[],main:{stage:0,progress:0},lastActionResult:null,ended:false,log:[],stats:{hp:100,hunger:20,thirst:20,hygiene:75,sanity:75,stamina:80,infection:0,money:o.m+c.m,reputation:10,danger:o.d}};mods(o.mod);mods(c.mod);o.r.forEach(x=>add(x));c.items.forEach(x=>add(x));if(has("背包"))game.cap+=8;if(has("破旧背包"))game.cap+=5;game.log.push(`你在${o.n}醒来，职业是${c.n}。灰雨病毒已经摧毁秩序。`);renderCharacterInfo()}
+
+let shopCategory="survival";
+const shopCategories={
+  survival:{name:"水和食物",items:["瓶装水","净水片","罐头","压缩饼干","能量棒"]},
+  medical:{name:"医疗卫生",items:["绷带","医疗包","止痛药","抗生素","消毒剂","口罩","酒精"]},
+  tools:{name:"工具照明",items:["打火机","手电筒","电池","绳子","工具箱","撬棍","胶带","地图"]},
+  defense:{name:"防御武器",items:["小刀","铁棍","斧头","警棍","弹药","防护服","简易陷阱材料"]},
+  special:{name:"特殊物资",items:["睡袋","收音机","对讲机","过滤水壶","日记本","音乐播放器","种子","燃油","宠物口粮","背包"]}
+};
+const starterPacks=[
+  {name:"基础生存包",price:32,items:["瓶装水","瓶装水","罐头","压缩饼干","绷带"],desc:"最稳妥，适合大多数开局。"},
+  {name:"医疗防感染包",price:42,items:["绷带","消毒剂","抗生素","口罩"],desc:"适合医院、城市、商场等高感染地点。"},
+  {name:"探索工具包",price:46,items:["手电筒","电池","撬棍","地图"],desc:"适合搜索建筑和推进主线。"},
+  {name:"据点防御包",price:50,items:["铁棍","绳子","简易陷阱材料","胶带"],desc:"适合古堡、农村、别墅等据点玩法。"}
+];
+function setShopCategory(k){shopCategory=k;renderShop()}
+function renderShop(){
+  const cat=shopCategories[shopCategory]||shopCategories.survival;
+  shopBox.innerHTML=`
+    <div class="shopHint">负重已重新平衡：药品和信息物品更轻，工具、武器、燃油更重。建议先保证 2–3 天水和食物，再选择一类核心装备。买错可删除并退款。</div>
+    <h3>推荐套装</h3>
+    <div class="packGrid">
+      ${starterPacks.map(p=>`<div class="pack"><b>${p.name}</b><div class="muted">${p.desc}</div><div class="kv"><span>价格</span><b>$${p.price}</b></div><div class="muted">${p.items.join("、")}</div><button class="btn" onclick="buyPack('${p.name}')">购买套装</button></div>`).join("")}
+    </div>
+    <h3>分类单品</h3>
+    <div class="shopTabs">
+      ${Object.entries(shopCategories).map(([k,v])=>`<button class="${k===shopCategory?'active':''}" onclick="setShopCategory('${k}')">${v.name}</button>`).join("")}
+    </div>
+    <div>
+      ${cat.items.map(n=>{
+        const v=items[n];
+        return `<div class="itemSimple"><div><b>${n}</b><div class="weight">${v[2]}｜负重 ${v[1]}</div></div><span class="price">$${v[0]}</span><button class="btn" onclick="buy('${n}')">买</button></div>`
+      }).join("")}
+    </div>`;
+  updateShop();
+}
+function buyPack(packName){
+  const p=starterPacks.find(x=>x.name===packName);
+  if(!p)return;
+  const totalWeight=p.items.reduce((s,n)=>s+(items[n]?.[1]||1),0);
+  if(game.stats.money<p.price)return T("钱不够，无法购买套装");
+  if(weight()+totalWeight>game.cap)return T("背包容量不足，无法购买套装");
+  game.stats.money-=p.price;
+  const each=Math.max(1,Math.round(p.price/p.items.length));
+  p.items.forEach(n=>{add(n);recordPurchase(n,each)});
+  updateShop();
+}
+function buy(n){
+  let it=items[n];
+  if(game.stats.money<it[0])return T("钱不够");
+  if(weight()+it[1]>game.cap)return T("背包太重");
+  game.stats.money-=it[0];
+  add(n);
+  recordPurchase(n,it[0]);
+  if(it[3].capacity)game.cap+=it[3].capacity;
+  updateShop();
+}
+function updateShop(){
+  game.purchased=game.purchased||{};game.paid=game.paid||{};
+  moneyS.innerText=game.stats.money;
+  weightS.innerText=`${weight()}/${game.cap}`;
+  const entries=Object.entries(game.bag);
+  const foodCount=["罐头","压缩饼干","能量棒"].reduce((s,n)=>s+(game.bag[n]||0),0);
+  const waterCount=["瓶装水","净水片"].reduce((s,n)=>s+(game.bag[n]||0),0);
+  bagS.innerHTML=`
+    <div class="bagSummary">
+      <div class="kv"><span>水资源</span><b>${waterCount}</b></div>
+      <div class="kv"><span>食物</span><b>${foodCount}</b></div>
+      <div class="kv"><span>医疗品</span><b>${entries.filter(([n])=>items[n]?.[2]==="medical").reduce((s,[n,q])=>s+q,0)}</b></div>
+    </div>
+    ${entries.map(([n,q])=>{
+      const canRefund=(game.purchased||{})[n]>0;
+      const avgRefund=canRefund?Math.max(0,Math.round((game.paid[n]||0)/(game.purchased[n]||1))):0;
+      return `<div class="bagItem"><span>${n}×${q}</span><span class="refundText">${canRefund?`可退 $${avgRefund}`:"初始物品"}</span><button class="removeBtn" onclick="removeShopItem('${n}')">删除</button></div>`;
+    }).join("")||"<div>空</div>"}`;
+}
+function startGame(){newDay();render();show("game")}
+function stage(){return game.day<=5?"早期":game.day<=10?"中期":game.day<=15?"后期":"最终阶段"}
+function mainStoryText(){
+  const d=game.day;
+  const place=game.originName;
+  const job=game.careerName;
+  const stageName=stage();
+  const currentQuest=quests[game.main.stage]||"最终撤离/防御";
+  const progress=game.main.progress||0;
+
+  let chapter="";
+  if(d<=5){
+    chapter=`【主线章节：灰雨后的前五天】
+病毒爆发后的城市还没有彻底死去。远处偶尔传来汽车警报声，楼道里有拖拽脚步，收音机里只剩下断续噪音。
+你现在最重要的不是英雄式冒险，而是确认水源、食物、临时藏身处和周围危险。`;
+  }else if(d<=10){
+    chapter=`【主线章节：资源开始变少】
+第六天后，容易找到的食物和瓶装水已经被幸存者搜刮过。丧尸变得更活跃，幸存者也开始变得不可信。
+你必须决定：继续苟在原地，还是冒险寻找安全区广播信号。`;
+  }else if(d<=15){
+    chapter=`【主线章节：撤离信号】
+天空长期灰暗，空气里有潮湿的腐味。你听到过几次疑似安全区广播，但坐标并不完整。
+如果想活到最后，你需要推进主线：修理通讯、确认路线、寻找交通工具，或者把据点加固到足以撑过尸潮。`;
+  }else{
+    chapter=`【主线章节：最后倒计时】
+尸潮正在移动，夜晚变得越来越短。你能感觉到，这片区域快要被彻底吞没。
+第 20 天前，你必须做出最终选择：撤离、死守、营救他人，或者孤身穿过封锁线。`;
+  }
+
+  let pressure=`当前主线：${currentQuest}｜进度 ${progress}/100。
+当前阶段：${stageName}。你的每一次选择都会影响最终结局。`;
+
+  let mood="";
+  if(game.stats.sanity<35) mood="你的精神状态很差，风声和脚步声开始混在一起。你需要休息、记录、音乐或伙伴陪伴。";
+  else if(game.stats.hp<40) mood="你的伤势让行动变慢，任何战斗和奔跑都会变得危险。";
+  else if(game.stats.danger>70) mood="附近危险等级很高，尸群活动频繁，贸然探索可能付出沉重代价。";
+  else mood="你仍然保持基本冷静，但末日不会因为你的谨慎而停下。";
+
+  return `${chapter}
+
+第 ${d} 天，${place}。
+你是一名${job}。醒来时，墙外传来若有若无的敲击声，像是有人在求救，也像是某种东西在试探入口。
+${pressure}
+
+${mood}
+
+今天你需要在“保守生存、外出探索、推进主线、帮助他人”之间做出选择。`;
+}
+function newDay(){
+  game.story=mainStoryText();
+  game.opts=[
+    {risk:"保守",intent:"defend",text:`加固${game.originName}附近藏身点，整理水、食物和入口。`},
+    {risk:"探索",intent:"scavenge",text:"搜索附近建筑，寻找水、食物、医疗用品或可交易物。"},
+    {risk:"高风险",intent:"main",text:`冒险推进主线：${quests[game.main.stage]||"最终撤离/防御"}`},
+    {risk:"社交/道德",intent:"social",text:"回应幸存者求救、交换情报，或尝试招募伙伴。"}
+  ];
+  if(game.day>15){
+    game.opts[2].text="顶着尸潮压力，前往最终撤离点或完成据点防御。";
+    game.opts[0].text=`封锁${game.originName}入口，清点最后的水、食物和防御物。`;
+  }
+}
+
+function groupList(arr){
+  const m={};
+  (arr||[]).forEach(x=>{ if(x) m[x]=(m[x]||0)+1; });
+  return Object.entries(m).map(([n,q])=>({name:n,qty:q}));
+}
+function renderDayResultPanel(){
+  const panel=document.getElementById("dayResultPanel");
+  if(!panel)return;
+  const r=game.lastActionResult;
+  if(!r){
+    panel.innerHTML="";
+    return;
+  }
+  const gained=groupList(r.items_gained||[]);
+  const lost=groupList(r.items_lost||[]);
+  const comps=groupList((r.companions_gained||[]).map(k=>friends[k]?.[0]||k));
+  const quest=(r.quest_updates||[]);
+  let blocks=[];
+  if(gained.length){
+    blocks.push(`<div class="lootBox"><h3>找到物资，已加入背包</h3><div class="lootGrid">${gained.map(x=>`<span class="lootTag">＋ ${x.name} × ${x.qty}</span>`).join("")}</div></div>`);
+  }
+  if(lost.length){
+    blocks.push(`<div class="lootBox"><h3>消耗 / 失去物品</h3><div class="lootGrid">${lost.map(x=>`<span class="lootTag lost">－ ${x.name} × ${x.qty}</span>`).join("")}</div></div>`);
+  }
+  if(comps.length){
+    blocks.push(`<div class="lootBox"><h3>新增伙伴 / 宠物</h3><div class="lootGrid">${comps.map(x=>`<span class="lootTag">★ ${x.name}</span>`).join("")}</div></div>`);
+  }
+  if(quest.length){
+    blocks.push(`<div class="resultBox"><div class="resultBoxTitle">任务更新</div>${quest.map(q=>`<div class="muted">${q}</div>`).join("")}</div>`);
+  }
+  if(r.action_result || r.difficulty_note){
+    blocks.unshift(`<div class="resultBox"><div class="resultBoxTitle">上一行动结果</div><div>${r.action_result||""}</div>${r.difficulty_note?`<div class="muted">${r.difficulty_note}</div>`:""}</div>`);
+  }
+  panel.innerHTML=blocks.join("");
+}
+
+function render(){renderCharacterInfo();renderStats();renderDayResultPanel();daySide.innerText=`${game.day}/${game.max}`;originSide.innerText=game.originName;careerSide.innerText=game.careerName;dayTitle.innerText=`第${game.day}天｜${game.originName}`;story.innerText=game.story;opts.innerHTML=game.opts.map((o,i)=>`<div class=option data-a="${i}" onclick="pickA(${i})"><b>${i+1}. ${o.risk}：</b>${o.text}</div>`).join("");aSel=null;custom.value="";bag.innerHTML=Object.entries(game.bag).map(([n,q])=>`<div>${n}×${q}</div>`).join("")||"<div>空</div>";quests.innerHTML=`<div>主线：${quests[game.main.stage]||"最终"}｜${game.main.progress}/100</div>`+(game.side.map(q=>`<div>支线：${q}</div>`).join("")||"<div>暂无支线</div>");friends.innerHTML=game.friends.map(f=>`<div>${friends[f][0]}：${friends[f][1]}</div>`).join("")||"<div>暂无伙伴</div>";log.innerHTML=game.log.slice(-12).reverse().map(x=>`<div>${x}</div>`).join("");if(document.getElementById("usePanel")?.classList.contains("active"))renderUsePanel()}
+function renderStats(){let arr=[["hp","生命",0],["hunger","饥饿",1],["thirst","口渴",1],["hygiene","卫生",0],["sanity","精神",0],["stamina","体力",0],["infection","感染",1],["reputation","声望",0],["danger","危险",1]];stats.innerHTML=arr.map(([k,n,badHigh])=>{let v=C(game.stats[k]),cls=badHigh?(v>75?"bad":v>50?"warn":""):(v<25?"bad":v<45?"warn":"");return `<div class=stat><div class=kv><span>${n}</span><b>${v}</b></div><div class=bar><div class="fill ${cls}" style="width:${v}%"></div></div></div>`}).join("")}
+function pickA(i){aSel=i;document.querySelectorAll("[data-a]").forEach(x=>x.classList.remove("sel"));document.querySelector(`[data-a="${i}"]`).classList.add("sel")}
+async function submitAct(){let txt=custom.value.trim();let act=txt?{type:"custom",intent:"custom",text:txt}:aSel!==null?{...game.opts[aSel],type:"option"}:null;if(!act)return T("请选择行动或输入自由行动");goBtn.disabled=true;goBtn.innerText="AI结算中...";let res;try{res=await remoteAI(act)}catch(e){res=localAI(act);res.action_result="本地模拟AI："+res.action_result}applyResult(act,res);goBtn.disabled=false;goBtn.innerText="提交行动"}
+async function remoteAI(act){if(!USE_REMOTE_AI)throw Error("off");let r=await fetch("/.netlify/functions/game-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gameState:pub(),action:act})});let d=await r.json();if(!r.ok)throw Error(d.error||"AI接口不可用");return d}
+function pub(){return{day:game.day,maxDays:game.max,origin:game.originName,career:game.careerName,stats:game.stats,bag:game.bag,friends:game.friends.map(f=>friends[f][0]),main:game.main,side:game.side,recent:game.log.slice(-6)}}
+function localAI(act){let s=game.stats,c=careers[game.career],t=c.tr||{},txt=(act.text||"").toLowerCase();let p=58+(s.stamina-50)/5+(s.sanity-50)/8-s.danger/8-s.infection/12;if(s.hp<35)p-=10;if(s.hunger>80)p-=8;if(s.thirst>75)p-=10;let ch={hp:0,hunger:0,thirst:0,hygiene:0,sanity:0,stamina:0,infection:0,money:0,reputation:0,danger:0},gain=[],lost=[],fg=[],fl=[],qu=[],story="",ar="";if(act.intent=="defend"){p+=12;ch.danger-=5;ch.stamina-=6}if(act.intent=="scavenge"){p-=2;ch.stamina-=12;ch.danger+=4}if(act.intent=="main"){p-=12;ch.stamina-=15;ch.danger+=8}if(act.intent=="social"){p-=5;ch.sanity-=3}if(act.intent=="custom"){if(/修|通讯|电|工具|陷阱/.test(txt))p+=(t.repair||0)*100;if(/药|治疗|消毒|感染/.test(txt))p+=(t.medical||0)*100;if(/战|枪|打|清理/.test(txt))p+=(t.combat||0)*100;if(/交易|谈判|说服/.test(txt))p+=(t.trade||0)*100;if(/搜索|废墟|潜行|避开/.test(txt))p+=(t.scavenge||0)*80+(t.stealth||0)*80;if(txt.length<8){p-=18;ch.danger+=5;ar+="行动太模糊，执行犹豫。"}if(/冲进尸群|大喊|送死/.test(txt)){p-=35;ch.hp-=18;ch.danger+=18}if(/观察|地图|计划|绕路|安静/.test(txt)){p+=8;ch.danger-=3}}if(has("地图")&&/路线|撤离|地图|绕路/.test(txt+act.text))p+=8;if(has("工具箱")&&/修|电|通讯|加固/.test(txt+act.text))p+=12;p=Math.max(5,Math.min(92,p));let ok=Math.random()*100<p;ar+=`成功率约${Math.round(p)}%。`;if(ok){ar+="你控制住了局势。";if(act.intent=="defend"){story="你加固入口，夜里低吼停在门外。";ch.sanity+=4;if(Math.random()<.25)gain.push("简易陷阱材料")}else if(act.intent=="scavenge"){story="你避开主街，在破碎橱窗后找到物资。";gain.push(Math.random()<.5?"瓶装水":"罐头");if(Math.random()<.35)gain.push(["绷带","电池","净水片","能量棒"][Math.floor(Math.random()*4)])}else if(act.intent=="main"){story="你冒险靠近关键地点，广播信号清晰了一点。";game.main.progress+=28;qu.push("主线进度提高");if(game.main.progress>=100){game.main.progress=0;game.main.stage=Math.min(game.main.stage+1,4);qu.push("主线阶段推进："+quests[game.main.stage])}}else if(act.intent=="social"){story="你回应了求救。恐惧是真的，但帮助也是真的。";ch.reputation+=8;ch.sanity+=3;if(Math.random()<.25){let a=Object.keys(friends).filter(x=>!game.friends.includes(x));if(a.length)fg.push(a[Math.floor(Math.random()*a.length)])}else if(Math.random()<.35){let q=sidePool[Math.floor(Math.random()*sidePool.length)];if(!game.side.includes(q)){game.side.push(q);qu.push("触发支线："+q)}}}else{story="你的临场判断发挥作用。";if(/水|食物|药|物资|搜索|找/.test(txt))gain.push(Math.random()<.5?"瓶装水":"罐头");if(/广播|信号|通讯|撤离|安全区/.test(txt)){game.main.progress+=18;qu.push("主线线索增加")}if(/帮助|救|伙伴|狗|孩子/.test(txt)){ch.reputation+=6;ch.sanity+=4}}}else{ar+="局势恶化。";story="低吼从拐角聚集，你活着退回，但付出代价。";ch.hp-=Math.floor(4+Math.random()*9);ch.stamina-=9;ch.sanity-=5;ch.danger+=5;if(Math.random()<.30)ch.infection+=5;if(act.intent=="main")ch.hp-=5;if(act.intent=="social")ch.reputation-=5}if(game.day>=6&&Math.random()<.18){let q=sidePool[Math.floor(Math.random()*sidePool.length)];if(!game.side.includes(q)){game.side.push(q);qu.push("新支线："+q)}}story += narrativeAfterAction(act, ok);
+return{story,action_result:ar,stat_changes:ch,items_gained:gain,items_lost:lost,companions_gained:fg,companions_lost:fl,quest_updates:qu,death:false,death_reason:"",next_day_options:[],difficulty_note:"难度随天数上升"}}
+
+function narrativeAfterAction(act, ok){
+  const d=game.day;
+  let extra="\n\n";
+  if(act.intent==="defend"){
+    extra += ok
+      ? "你把能移动的柜子推到门后，又用胶带封住会发出声响的窗框。夜里有东西经过，但没有停留太久。"
+      : "你试图加固入口，却发现一处旧裂缝比想象中更严重。你不得不放弃一部分空间，退到更狭窄的角落。";
+  }else if(act.intent==="scavenge"){
+    extra += ok
+      ? "搜索过程中，你不断提醒自己不要贪心。末日里真正危险的不是空手而归，而是为了多拿一点东西发出太大声音。"
+      : "你翻找得太久，远处的低吼逐渐靠近。撤退时你撞翻了杂物，那声音在空楼里响得像警报。";
+  }else if(act.intent==="main"){
+    extra += ok
+      ? "这次冒险让主线变得更清晰：安全区、撤离路线、通讯设备之间似乎存在某种联系。你离答案更近了。"
+      : "你接近关键地点时遇到阻碍。也许路线没错，但时机太差；也许有人比你更早盯上了那里。";
+  }else if(act.intent==="social"){
+    extra += ok
+      ? "你从对方眼里看见了恐惧，也看见了自己。帮助别人让资源压力变大，但也让这个世界没有完全坏掉。"
+      : "你试图相信别人，但末日把每个人都逼得太紧。一次误判足以让好意变成代价。";
+  }else{
+    extra += ok
+      ? "你的自由行动没有完全按照常规进行，但逻辑足够清楚。你用自己的方式争取到了一点主动权。"
+      : "想法并非完全错误，只是在执行时缺少细节。末日不会奖励模糊的计划。";
+  }
+  if(d>=16) extra += " 最后的日子里，任何小失误都会被放大。你开始明白，活下去不是一次选择，而是连续二十天都不能彻底崩盘。";
+  return extra;
+}
+
+function applyResult(act,r){
+game.lastActionResult={
+  action_result:r.action_result||"",
+  story:r.story||"",
+  stat_changes:r.stat_changes||{},
+  items_gained:r.items_gained||[],
+  items_lost:r.items_lost||[],
+  companions_gained:r.companions_gained||[],
+  companions_lost:r.companions_lost||[],
+  quest_updates:r.quest_updates||[],
+  difficulty_note:r.difficulty_note||""
+};
+let lines=[`【第${game.day}天】${act.text}`,r.action_result,r.story];mods(r.stat_changes||{});(r.items_gained||[]).forEach(i=>{add(i);lines.push("找到物资并加入背包："+i)});(r.items_lost||[]).forEach(i=>{if(rem(i))lines.push("失去："+i)});(r.companions_gained||[]).forEach(f=>{if(friends[f]&&!game.friends.includes(f)){game.friends.push(f);lines.push("伙伴加入："+friends[f][0])}});(r.companions_lost||[]).forEach(f=>{game.friends=game.friends.filter(x=>x!=f);lines.push("失去伙伴："+(friends[f]?.[0]||f))});(r.quest_updates||[]).forEach(q=>lines.push(q));game.log.push(lines.filter(Boolean).join(" "));if(r.death)return end(false,r.death_reason||"行动失败导致死亡");daily();let dead=deadReason();if(dead)return end(false,dead);if(game.day>=game.max)return end(true);game.day++;newDay();render();saveGame(false)}
+function daily(){
+  let s=game.stats;
+
+  const summary={
+    foodUsed:false,
+    waterUsed:false,
+    companionFoodUsed:0,
+    companionWaterUsed:0,
+    missingFood:0,
+    missingWater:0,
+    notes:[]
+  };
+
+  // 主角每天固定消耗 1 份食物、1 份水，直接从背包扣除。
+  summary.foodUsed=eat();
+  summary.waterUsed=drink();
+
+  if(summary.foodUsed){
+    s.hunger=C(s.hunger-8);
+    summary.notes.push("你消耗了 1 份食物，饥饿暂时被压住。");
+  }else{
+    summary.missingFood++;
+    s.hunger=C(s.hunger+18);
+    s.stamina=C(s.stamina-4);
+    s.hp=C(s.hp-3);
+    summary.notes.push("今天没有食物可吃，饥饿明显上升，体力和生命受到影响。");
+  }
+
+  if(summary.waterUsed){
+    s.thirst=C(s.thirst-10);
+    summary.notes.push("你消耗了 1 份水，口渴得到缓解。");
+  }else{
+    summary.missingWater++;
+    s.thirst=C(s.thirst+22);
+    s.sanity=C(s.sanity-3);
+    s.hp=C(s.hp-5);
+    summary.notes.push("今天没有水可喝，口渴迅速上升，意识开始发沉。");
+  }
+
+  // 伙伴/宠物会额外消耗资源，但压力比旧版更温和。
+  for(const f of game.friends){
+    const needFood=friends[f]?.[2]||0;
+    const needWater=friends[f]?.[3]||0;
+    for(let i=0;i<needFood;i++){
+      if(eat()) summary.companionFoodUsed++;
+      else { summary.missingFood++; s.hunger=C(s.hunger+4); s.sanity=C(s.sanity-2); }
+    }
+    for(let i=0;i<needWater;i++){
+      if(drink()) summary.companionWaterUsed++;
+      else { summary.missingWater++; s.thirst=C(s.thirst+5); s.sanity=C(s.sanity-2); }
+    }
+  }
+  if(game.friends.length){
+    summary.notes.push(`伙伴/宠物额外消耗：食物 ${summary.companionFoodUsed}，水 ${summary.companionWaterUsed}。`);
+    if(summary.missingFood||summary.missingWater) summary.notes.push("资源不足让队伍气氛变得紧张。");
+  }
+
+  // 每日基础环境消耗：不再额外强制大量增加饥饿/口渴，主要由是否有食物/水决定。
+  s.hygiene=C(s.hygiene-5);
+  s.stamina=C(s.stamina-6);
+  s.sanity=C(s.sanity-3);
+  s.danger=C(s.danger+2+Math.floor(game.day/8));
+
+  if(s.hunger>85){s.hp=C(s.hp-4);summary.notes.push("高饥饿正在持续伤害身体。");}
+  if(s.thirst>80){s.hp=C(s.hp-5);s.sanity=C(s.sanity-2);summary.notes.push("高口渴让你难以集中精神。");}
+  if(s.hygiene<25){s.infection=C(s.infection+4);s.sanity=C(s.sanity-2);summary.notes.push("卫生过低，感染风险开始上升。");}
+  if(s.infection>85){s.hp=C(s.hp-6);s.sanity=C(s.sanity-3);summary.notes.push("感染风险过高，身体状态急剧恶化。");}
+
+  if(has("睡袋")){s.stamina=C(s.stamina+5);summary.notes.push("睡袋让你恢复了一些体力。");}
+  if(has("日记本")){s.sanity=C(s.sanity+2);summary.notes.push("你写下今天发生的事，精神稍微稳定。");}
+  if(game.friends.includes("dog")){s.sanity=C(s.sanity+3);summary.notes.push("流浪狗的警戒让你睡得稍微安心。");}
+
+  game.lastDailySummary=summary;
+  game.log.push(buildDailySummary(summary));
+}
+function buildDailySummary(summary){
+  const s=game.stats;
+  const waterLeft=(game.bag["瓶装水"]||0)+(game.bag["净水片"]||0);
+  const foodLeft=(game.bag["罐头"]||0)+(game.bag["压缩饼干"]||0)+(game.bag["能量棒"]||0)+(game.bag["宠物口粮"]||0);
+  let text=`【第${game.day}天夜间总结】`;
+  text+=`你清点背包：剩余食物 ${foodLeft}，剩余水源 ${waterLeft}。`;
+  text+=summary.notes.join("");
+  text+=` 当前状态：生命${s.hp}，饥饿${s.hunger}，口渴${s.thirst}，卫生${s.hygiene}，精神${s.sanity}，感染${s.infection}，危险${s.danger}。`;
+  if(game.main.progress>=70) text+="主线线索已经接近完整，你能感觉到撤离或防守的关键选择快来了。";
+  else if(game.day>=10) text+="主线压力正在增加，如果继续拖延，最后几天会变得更加危险。";
+  return text;
+}
+function eat(){for(let f of ["罐头","压缩饼干","能量棒","宠物口粮"])if(has(f)){rem(f);return true}return false}
+function drink(){for(let w of ["瓶装水","净水片"])if(has(w)){rem(w);return true}if(has("过滤水壶")&&Math.random()<.6)return true;return false}
+function deadReason(){let s=game.stats;if(s.hp<=0)return"生命值归零";if(s.infection>=100)return"感染失控";if(s.sanity<=0)return"精神崩溃";if(s.hunger>=100)return"饥饿死亡";if(s.thirst>=100)return"缺水死亡";if(s.danger>=100)return"尸潮包围了你的藏身处";return""}
+function usableItems(){
+  return Object.keys(game.bag||{}).filter(n=>["food","water","medical","mental","camp"].includes(items[n]?.[2]));
+}
+function toggleUsePanel(){
+  const p=document.getElementById("usePanel");
+  if(!p)return;
+  p.classList.toggle("active");
+  renderUsePanel();
+}
+function closeUsePanel(){
+  const p=document.getElementById("usePanel");
+  if(p)p.classList.remove("active");
+}
+function renderUsePanel(){
+  const p=document.getElementById("usePanel");
+  if(!p)return;
+  const usable=usableItems();
+  if(!usable.length){
+    p.innerHTML=`<div class="useHeader"><b>使用物品</b><button class="removeBtn" onclick="closeUsePanel()">关闭</button></div><div class="useEmpty">当前没有可直接使用的物品。可使用类型：食物、水、医疗、精神、休息类物品。</div>`;
+    return;
+  }
+  p.innerHTML=`
+    <div class="useHeader">
+      <b>选择物品和数量</b>
+      <button class="removeBtn" onclick="closeUsePanel()">关闭</button>
+    </div>
+    ${usable.map(n=>{
+      const max=game.bag[n]||0;
+      const q=Math.min(useQty[n]||1,max);
+      useQty[n]=q;
+      const it=items[n];
+      const effect=describeEffect(n,q);
+      return `<div class="useRow">
+        <div>
+          <b>${n}</b> <span class="useMeta">库存 ${max}｜${typeName(it[2])}</span>
+          <div class="useMeta">${effect}</div>
+        </div>
+        <div class="qtyBox">
+          <button class="qtyBtn" onclick="changeUseQty('${n}',-1)">−</button>
+          <span class="qtyNum">${q}</span>
+          <button class="qtyBtn" onclick="changeUseQty('${n}',1)">＋</button>
+        </div>
+        <button class="useBtn" onclick="useSelectedItem('${n}')">使用</button>
+      </div>`;
+    }).join("")}`;
+}
+function typeName(t){
+  return {food:"食物",water:"饮水",medical:"医疗",mental:"精神",camp:"休息"}[t]||t;
+}
+function changeUseQty(n,delta){
+  const max=game.bag[n]||0;
+  useQty[n]=Math.max(1,Math.min(max,(useQty[n]||1)+delta));
+  renderUsePanel();
+}
+function scaledEffect(n,q){
+  const it=items[n];
+  const base={...(it?.[3]||{})};
+  const out={};
+  for(const k in base){
+    if(k==="capacity") continue;
+    let v=base[k]*q;
+    if(game.career==="doctor" && it[2]==="medical"){
+      if(k==="hp"||k==="infection") v=Math.round(v*1.35);
+    }
+    if(game.career==="chef" && it[2]==="food" && k==="hunger"){
+      v=Math.round(v*1.3);
+    }
+    out[k]=Math.round(v);
+  }
+  return out;
+}
+function describeEffect(n,q){
+  const ef=scaledEffect(n,q);
+  const names={hp:"生命",hunger:"饥饿",thirst:"口渴",hygiene:"卫生",sanity:"精神",stamina:"体力",infection:"感染",danger:"危险",reputation:"声望"};
+  const arr=Object.entries(ef).map(([k,v])=>`${names[k]||k}${v>0?"+":""}${v}`);
+  return arr.length?`使用 ${q} 个效果：${arr.join("，")}`:"特殊物品，主要用于剧情或交易。";
+}
+function useSelectedItem(n){
+  if(!has(n))return T("物品不存在");
+  const max=game.bag[n]||0;
+  const q=Math.max(1,Math.min(max,useQty[n]||1));
+  const it=items[n];
+  if(!["food","water","medical","mental","camp"].includes(it?.[2]))return T("这个物品不能直接使用");
+  for(let i=0;i<q;i++)rem(n);
+  const ef=scaledEffect(n,q);
+  mods(ef);
+  game.log.push(`使用物品：${n} × ${q}。效果：${describeEffect(n,q)}`);
+  useQty[n]=1;
+  render();
+  const p=document.getElementById("usePanel");
+  if(p){p.classList.add("active");renderUsePanel();}
+}
+function restAct(){custom.value="我选择保守休息，整理物资，尽量不制造噪音。";submitAct()}
+function title(surv){let s=game.stats;if(!surv){if(s.infection>=80)return"感染者";if(s.sanity<=20)return"精神崩溃者";if(s.hunger>=90||s.thirst>=90)return"资源耗尽者";return"被遗忘的人"}if(game.main.stage>=4&&s.hp>70&&s.reputation>50)return"完美生还者";if(!game.friends.length)return"孤狼求生者";if(s.reputation>65)return"人性守护者";if(game.career=="doctor"&&s.infection<25)return"废土医生";if(Object.keys(game.bag).length>8)return"资源大师";if(game.career=="merchant")return"黑暗交易者";if(s.sanity>70&&game.main.stage>=3)return"冷静指挥官";return"末日幸存者"}
+function end(surv,why=""){let ti=title(surv),txt=surv?`第20天，远处终于不再只有低吼。你以“${ti}”的身份活了下来。你的选择留下痕迹：伙伴、物资、伤口、声望，以及那些没能救下的人。`:`${why}。你的故事停在第${game.day}天，称号“${ti}”。`;endingBox.innerHTML=`<h2>${surv?"生还结局":"失败结局"}｜${ti}</h2><p>${txt}</p><h3>最终状态</h3><div class=grid>${Object.entries(game.stats).map(([k,v])=>`<div class=kv><span>${k}</span><b>${v}</b></div>`).join("")}</div><h3>历程总结</h3><div class=log style="max-height:420px">${game.log.map(x=>`<div>${x}</div>`).join("")}</div><button class="btn primary" onclick="resetGame()">重新开始</button>`;localStorage.removeItem("zombieSave");show("ending")}
+function saveGame(showMsg=true){localStorage.setItem("zombieSave",JSON.stringify(game));if(showMsg)T("已保存")}
+function loadGame(){let r=localStorage.getItem("zombieSave");if(!r)return T("没有存档");game=JSON.parse(r);oSel=game.origin;cSel=game.career;renderCharacterInfo();newDay();render();show("game")}
+function resetGame(){if(confirm("确定重开？")){localStorage.removeItem("zombieSave");location.reload()}}
+init();renderCharacterInfo();
+</script>
+</body></html>
