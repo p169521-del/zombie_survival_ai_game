@@ -152,19 +152,22 @@
   <div class="chargrid">
     <div class="charitem"><span>出生点</span><b id="charOrigin">未选择</b></div>
     <div class="charitem"><span>职业</span><b id="charCareer">未选择</b></div>
-    <div class="charitem"><span>预计金钱</span><b id="charMoney">0</b></div>
-    <div class="charitem"><span>背包容量</span><b id="charCapacity">20</b></div>
+    <div class="charitem"><span>预计现金</span><b id="charMoney">0</b></div>
+    <div class="charitem"><span>背包容量</span><b id="charCapacity">30 / 上限60</b></div>
   </div>
   <div id="charDetails" class="chardetail">请选择出生点和职业，系统会在这里实时生成角色开局信息。</div>
 </div>
 
+
+<div class="notice"><b>现金平衡：</b>不同职业的开局现金约 1500–4550，再叠加出生点现金后通常在 2000–5000 左右。战斗/医疗/特殊物品多的职业现金较少，商人现金最高但战斗弱。</div>
+
 <section id="start" class="screen active">
-<div class="hero"><h2>背景</h2><p>“灰雨病毒”爆发后第七天，城市秩序崩溃。医院、学校、商场、农村、孤岛都变成不同形式的牢笼。你只是一个普通幸存者，需要管理生命、饥饿、口渴、卫生、精神、体力、感染、金钱、声望和危险等级，在20天内找到安全区信号、完成撤离或建立据点。</p><div class="notice">每天你可以选择4个行动之一，也可以输入自由行动。若部署OpenAI接口，后端AI会判断剧情；否则本地模拟AI也可完整游玩。</div></div>
+<div class="hero"><h2>背景</h2><p>“灰雨病毒”爆发后第七天，城市秩序崩溃。医院、学校、商场、农村、孤岛都变成不同形式的牢笼。你只是一个普通幸存者，需要管理生命、饥饿、口渴、卫生、精神、体力、感染、现金、声望和危险等级，在20天内找到安全区信号、完成撤离或建立据点。</p><div class="notice">每天你可以选择4个行动之一，也可以输入自由行动。若部署OpenAI接口，后端AI会判断剧情；否则本地模拟AI也可完整游玩。</div></div>
 </section>
 
 <section id="origin" class="screen"><div class="hero"><h2>选择出生点</h2><p class="muted">每个地点都有资源和代价。</p></div><div id="originBox" class="grid g4"></div><button class="btn" onclick="show('start')">返回</button><button class="btn primary" onclick="confirmOrigin()">确认出生点</button></section>
 <section id="career" class="screen"><div class="hero"><h2>选择职业</h2><p class="muted">没有无敌职业，每种都有优势和弱点。</p></div><div id="careerBox" class="grid g3"></div><button class="btn" onclick="show('origin')">返回</button><button class="btn primary" onclick="confirmCareer()">确认职业</button></section>
-<section id="shop" class="screen"><div class="hero"><h2>开局商店</h2><p class="muted">商店已精简为“推荐套装 + 分类单品”。本版降低生存压力并适当增加金钱：开局可以买到基础补给和1类核心装备，但仍需要取舍。</p><div class="notice"><b>负重规则：</b>基础容量 20。水和罐头约 1 负重；药片、地图等很轻；工具、武器、防护服、燃油较重；背包自身占重但会增加容量。</div></div><div class="layout"><div class="panel"><h3>商店</h3><div id="shopBox"></div></div><div class="panel"><h3>背包</h3><div class="kv"><span>金钱</span><b id="moneyS"></b></div><div class="kv"><span>负重</span><b id="weightS"></b></div><div id="bagS" class="list"></div><button class="btn primary" onclick="startGame()">进入第1天</button></div></div></section>
+<section id="shop" class="screen"><div class="hero"><h2>开局商店</h2><p class="muted">商店已精简为“推荐套装 + 分类单品”。本版采用现实生活价格尺度：角色开局现金约 2000–5000，常见物品价格接近日常价格，武器、防护服、通讯设备等稀缺物资明显更贵。</p><div class="notice"><b>负重规则：</b>基础容量 30，人体最大可承受负重上限 60。商店背包分为轻便双肩包、标准旅行背包、专业登山包、战术负重包；多个背包不叠加，只按容量最高的一个生效。</div></div><div class="layout"><div class="panel"><h3>商店</h3><div id="shopBox"></div></div><div class="panel"><h3>背包</h3><div class="kv"><span>现金</span><b id="moneyS"></b></div><div class="kv"><span>负重</span><b id="weightS"></b></div><div id="bagS" class="list"></div><button class="btn primary" onclick="startGame()">进入第1天</button></div></div></section>
 
 <section id="game" class="screen"><div class="layout">
 <aside class="panel"><h3>状态</h3><div id="stats"></div><div class="kv"><span>天数</span><b id="daySide"></b></div><div class="kv"><span>地点</span><b id="originSide"></b></div><div class="kv"><span>职业</span><b id="careerSide"></b></div><h3>背包</h3><div id="bag" class="list"></div><h3>任务</h3><div id="quests" class="list"></div><h3>伙伴/宠物</h3><div id="friends" class="list"></div></aside>
@@ -178,37 +181,40 @@
 <script>
 const USE_REMOTE_AI=true;
 const origins={
-city:{n:"城市公寓",d:24,m:50,t:["资源多","丧尸密度高","噪音风险"],r:["瓶装水","罐头","手电筒"],e:["邻居求救","楼道尸群","电梯故障"],mod:{danger:8,sanity:-3}},
-rural:{n:"农村小屋",d:12,m:35,t:["水井","农田","医疗少"],r:["净水片","压缩饼干","绳子"],e:["废弃农场","野狗","粮仓争夺"],mod:{danger:-5,hygiene:5}},
-school:{n:"学校宿舍",d:20,m:40,t:["食堂","医务室","封闭空间"],r:["能量棒","绷带","地图"],e:["广播室","实验室","被困学生"],mod:{sanity:-4,stamina:5}},
-villa:{n:"海边别墅",d:15,m:65,t:["安静","渔具","风暴"],r:["瓶装水","罐头","收音机"],e:["海上求救信号","暴雨","搁浅船只"],mod:{sanity:5,danger:-2}},
-castle:{n:"古堡",d:18,m:48,t:["防御强","食物少","结构复杂"],r:["小刀","睡袋","地图"],e:["地下室","旧武器库","神秘幸存者"],mod:{hygiene:-3,danger:3}},
-island:{n:"孤岛",d:8,m:32,t:["隔离","资源极少","逃离困难"],r:["过滤水壶","绳子"],e:["废弃灯塔","破船","海上风暴"],mod:{danger:-10,sanity:-6,thirst:8}},
-hospital:{n:"医院",d:30,m:42,t:["医疗丰富","感染高","丧尸密集"],r:["绷带","消毒剂","口罩"],e:["药房","手术室","感染病区"],mod:{infection:12,danger:12}},
-mall:{n:"商场",d:27,m:62,t:["物资丰富","冲突多","易包围"],r:["罐头","瓶装水","铁棍"],e:["地下停车场","超市争夺","广播求救"],mod:{danger:10,reputation:-2}}
+city:{n:"城市公寓",d:24,m:650,t:["资源多","丧尸密度高","噪音风险"],r:["瓶装水","罐头","手电筒"],e:["邻居求救","楼道尸群","电梯故障"],mod:{danger:8,sanity:-3}},
+rural:{n:"农村小屋",d:12,m:350,t:["水井","农田","医疗少"],r:["净水片","压缩饼干","绳子"],e:["废弃农场","野狗","粮仓争夺"],mod:{danger:-5,hygiene:5}},
+school:{n:"学校宿舍",d:20,m:420,t:["食堂","医务室","封闭空间"],r:["能量棒","绷带","地图"],e:["广播室","实验室","被困学生"],mod:{sanity:-4,stamina:5}},
+villa:{n:"海边别墅",d:15,m:900,t:["安静","渔具","风暴"],r:["瓶装水","罐头","收音机"],e:["海上求救信号","暴雨","搁浅船只"],mod:{sanity:5,danger:-2}},
+castle:{n:"古堡",d:18,m:550,t:["防御强","食物少","结构复杂"],r:["小刀","睡袋","地图"],e:["地下室","旧武器库","神秘幸存者"],mod:{hygiene:-3,danger:3}},
+island:{n:"孤岛",d:8,m:300,t:["隔离","资源极少","逃离困难"],r:["过滤水壶","绳子"],e:["废弃灯塔","破船","海上风暴"],mod:{danger:-10,sanity:-6,thirst:8}},
+hospital:{n:"医院",d:30,m:500,t:["医疗丰富","感染高","丧尸密集"],r:["绷带","消毒剂","口罩"],e:["药房","手术室","感染病区"],mod:{infection:12,danger:12}},
+mall:{n:"商场",d:27,m:800,t:["物资丰富","冲突多","易包围"],r:["罐头","瓶装水","铁棍"],e:["地下停车场","超市争夺","广播求救"],mod:{danger:10,reputation:-2}}
 };
 const careers={
-doctor:{n:"医生",m:62,desc:"治疗强，战斗弱",skill:"急救：医疗效果+35%",items:["医疗包","抗生素","绷带"],mod:{hp:5,infection:-10,stamina:-5},tr:{medical:.3,combat:-.1}},
-police:{n:"警察",m:75,desc:"战斗强，易招敌意",skill:"威慑：对掠夺者成功率提高",items:["手枪","警棍","弹药"],mod:{stamina:8,danger:5},tr:{combat:.28}},
-engineer:{n:"工程师",m:68,desc:"修理加固强，精神压力高",skill:"修理通讯和发电机",items:["工具箱","电池","胶带"],mod:{sanity:-6,stamina:3},tr:{repair:.3}},
-chef:{n:"厨师",m:52,desc:"食物利用率高",skill:"食物效果+30%",items:["罐头","小刀","能量棒"],mod:{hunger:-8,sanity:3},tr:{food:.3}},
-student:{n:"学生",m:40,desc:"适应性高，钱少",skill:"学习快，隐藏选择更多",items:["背包","日记本","手机"],mod:{stamina:5,money:-10},tr:{learn:.25}},
-veteran:{n:"退伍军人",m:60,desc:"战斗体力抗压强，社交弱",skill:"战术生存",items:["军刀","野外生存包","睡袋"],mod:{stamina:15,sanity:8,hygiene:-8,reputation:-4},tr:{combat:.35,survival:.2}},
-merchant:{n:"商人",m:120,desc:"钱多交易强，战斗弱",skill:"交易价格更好",items:["打火机","贵重物","地图"],mod:{money:25,danger:4},tr:{trade:.35,combat:-.1}},
-farmer:{n:"农民",m:48,desc:"野外生存强，城市弱",skill:"野外更易获食物",items:["种子","镰刀","净水片"],mod:{hunger:-5,thirst:-5,stamina:5},tr:{survival:.3,food:.2}},
-reporter:{n:"记者",m:62,desc:"信息沟通强，战斗弱",skill:"更易发现线索",items:["相机","录音笔","地图"],mod:{sanity:-2,reputation:6},tr:{info:.3,social:.15}},
-drifter:{n:"流浪者",m:30,desc:"隐蔽搜索强，精神低",skill:"废墟搜索成功率提高",items:["破旧背包","小刀","旧毯子"],mod:{sanity:-12,stamina:6,danger:-3},tr:{stealth:.25,scavenge:.3}}
+doctor:{n:"医生",m:3200,desc:"治疗强，战斗弱",skill:"急救：医疗效果+35%",items:["医疗包","抗生素","绷带"],mod:{hp:5,infection:-10,stamina:-5},tr:{medical:.3,combat:-.1}},
+police:{n:"警察",m:2600,desc:"战斗强，易招敌意",skill:"威慑：对掠夺者成功率提高",items:["手枪","警棍","弹药"],mod:{stamina:8,danger:5},tr:{combat:.28}},
+engineer:{n:"工程师",m:3000,desc:"修理加固强，精神压力高",skill:"修理通讯和发电机",items:["工具箱","电池","胶带"],mod:{sanity:-6,stamina:3},tr:{repair:.3}},
+chef:{n:"厨师",m:2300,desc:"食物利用率高",skill:"食物效果+30%",items:["罐头","小刀","能量棒"],mod:{hunger:-8,sanity:3},tr:{food:.3}},
+student:{n:"学生",m:1800,desc:"适应性高，钱少",skill:"学习快，隐藏选择更多",items:["背包","日记本","手机"],mod:{stamina:5,money:-10},tr:{learn:.25}},
+veteran:{n:"退伍军人",m:2400,desc:"战斗体力抗压强，社交弱",skill:"战术生存",items:["军刀","野外生存包","睡袋"],mod:{stamina:15,sanity:8,hygiene:-8,reputation:-4},tr:{combat:.35,survival:.2}},
+merchant:{n:"商人",m:4100,desc:"钱多交易强，战斗弱",skill:"交易价格更好",items:["打火机","贵重物","地图"],mod:{money:450,danger:4},tr:{trade:.35,combat:-.1}},
+farmer:{n:"农民",m:2100,desc:"野外生存强，城市弱",skill:"野外更易获食物",items:["种子","镰刀","净水片"],mod:{hunger:-5,thirst:-5,stamina:5},tr:{survival:.3,food:.2}},
+reporter:{n:"记者",m:2800,desc:"信息沟通强，战斗弱",skill:"更易发现线索",items:["相机","录音笔","地图"],mod:{sanity:-2,reputation:6},tr:{info:.3,social:.15}},
+drifter:{n:"流浪者",m:1500,desc:"隐蔽搜索强，精神低",skill:"废墟搜索成功率提高",items:["破旧背包","小刀","旧毯子"],mod:{sanity:-12,stamina:6,danger:-3},tr:{stealth:.25,scavenge:.3}}
 };
 const items={
-"瓶装水":[8,1.0,"water",{thirst:-22}],"净水片":[12,0.2,"water",{thirst:-12,infection:-3}],"罐头":[10,1.0,"food",{hunger:-22}],"压缩饼干":[8,0.6,"food",{hunger:-18,stamina:4}],"能量棒":[7,0.4,"food",{hunger:-10,stamina:12}],"打火机":[9,0.2,"tool",{sanity:2}],"手电筒":[15,0.8,"tool",{danger:-3}],"电池":[8,0.3,"tool",{}],"睡袋":[16,2.0,"camp",{sanity:8,stamina:12}],"绳子":[10,1.2,"tool",{danger:-2}],
-"绷带":[9,0.3,"medical",{hp:10,infection:-2}],"医疗包":[28,1.2,"medical",{hp:28,infection:-8}],"止痛药":[14,0.2,"medical",{hp:8,sanity:6}],"抗生素":[24,0.2,"medical",{infection:-22}],"消毒剂":[16,0.6,"medical",{hygiene:18,infection:-8}],"口罩":[6,0.1,"medical",{infection:-3}],"酒精":[16,0.6,"medical",{hygiene:12,infection:-7}],"缝合针线":[18,0.2,"medical",{hp:16,infection:-5}],
-"小刀":[12,0.5,"weapon",{danger:-2}],"铁棍":[14,2.0,"weapon",{danger:-3}],"斧头":[22,3.0,"weapon",{danger:-5}],"工具箱":[26,3.5,"tool",{}],"撬棍":[18,2.2,"tool",{}],"胶带":[8,0.3,"tool",{}],"手摇电筒":[18,0.9,"tool",{danger:-3}],"对讲机":[30,0.8,"radio",{}],"收音机":[28,1.0,"radio",{}],"地图":[10,0.1,"info",{danger:-2}],
-"宠物口粮":[9,0.8,"pet",{}],"日记本":[5,0.3,"mental",{sanity:8}],"音乐播放器":[20,0.3,"mental",{sanity:14}],"防护服":[42,2.8,"armor",{infection:-12,hygiene:6}],"过滤水壶":[34,1.0,"water",{thirst:-18}],"简易陷阱材料":[18,2.5,"craft",{danger:-5}],"种子":[10,0.3,"farm",{}],"燃油":[26,3.0,"fuel",{}],"弹药":[25,0.8,"weapon",{danger:-6}],"手枪":[70,1.2,"weapon",{danger:-8}],"警棍":[18,1.1,"weapon",{danger:-4}],"军刀":[25,0.7,"weapon",{danger:-5}],"镰刀":[18,2.0,"tool",{danger:-3}],"贵重物":[40,0.4,"trade",{}],"相机":[24,0.6,"info",{reputation:2}],"录音笔":[18,0.2,"info",{}],"手机":[25,0.2,"info",{}],"背包":[25,1.0,"bag",{capacity:8}],"破旧背包":[0,0.8,"bag",{capacity:5}],"旧毯子":[5,1.5,"camp",{sanity:5,stamina:6}],"野外生存包":[35,2.5,"camp",{stamina:10,danger:-3}]
+"瓶装水":[4,0.8,"water",{thirst:-22}],"净水片":[25,0.1,"water",{thirst:-12,infection:-3}],"罐头":[12,0.9,"food",{hunger:-22}],"压缩饼干":[10,0.4,"food",{hunger:-18,stamina:4}],"能量棒":[8,0.2,"food",{hunger:-10,stamina:12}],"打火机":[6,0.1,"tool",{sanity:2}],"手电筒":[45,0.6,"tool",{danger:-3}],"电池":[8,0.2,"tool",{}],"睡袋":[180,1.8,"camp",{sanity:8,stamina:12}],"绳子":[35,1.0,"tool",{danger:-2}],
+"绷带":[12,0.2,"medical",{hp:10,infection:-2}],"医疗包":[160,1.0,"medical",{hp:28,infection:-8}],"止痛药":[25,0.1,"medical",{hp:8,sanity:6}],"抗生素":[95,0.1,"medical",{infection:-22}],"消毒剂":[28,0.4,"medical",{hygiene:18,infection:-8}],"口罩":[3,0.1,"medical",{infection:-3}],"酒精":[18,0.5,"medical",{hygiene:12,infection:-7}],"缝合针线":[35,0.1,"medical",{hp:16,infection:-5}],
+"小刀":[45,0.4,"weapon",{danger:-2}],"铁棍":[35,1.8,"weapon",{danger:-3}],"斧头":[120,2.6,"weapon",{danger:-5}],"工具箱":[260,3.0,"tool",{}],"撬棍":[80,1.8,"tool",{}],"胶带":[12,0.2,"tool",{}],"手摇电筒":[90,0.7,"tool",{danger:-3}],"对讲机":[260,0.7,"radio",{}],"收音机":[150,0.8,"radio",{}],"地图":[15,0.1,"info",{danger:-2}],
+"宠物口粮":[18,0.6,"pet",{}],"日记本":[8,0.2,"mental",{sanity:8}],"音乐播放器":[120,0.2,"mental",{sanity:14}],"防护服":[680,2.5,"armor",{infection:-12,hygiene:6}],"过滤水壶":[180,0.8,"water",{thirst:-18}],"简易陷阱材料":[110,2.0,"craft",{danger:-5}],"种子":[20,0.2,"farm",{}],"燃油":[120,2.5,"fuel",{}],"弹药":[420,0.6,"weapon",{danger:-6}],"手枪":[2600,1.0,"weapon",{danger:-8}],"警棍":[90,0.9,"weapon",{danger:-4}],"军刀":[160,0.5,"weapon",{danger:-5}],"镰刀":[85,1.7,"tool",{danger:-3}],"贵重物":[800,0.3,"trade",{}],"相机":[900,0.5,"info",{reputation:2}],"录音笔":[180,0.1,"info",{}],"手机":[1200,0.2,"info",{}],"背包":[0,1.0,"bag",{capacity:10}],"破旧背包":[0,0.8,"bag",{capacity:6}],"轻便双肩包":[120,0.8,"bag",{capacity:8}],"标准旅行背包":[260,1.4,"bag",{capacity:16}],"专业登山包":[520,2.4,"bag",{capacity:24}],"战术负重包":[850,3.5,"bag",{capacity:30}],"旧毯子":[40,1.2,"camp",{sanity:5,stamina:6}],"野外生存包":[360,2.2,"camp",{stamina:10,danger:-3}]
 };
 const friends={nurse:["护士","治疗效果提高",1,1],mechanic:["机械师","修理成功率提高",1,1],child:["小女孩","提高道德结局但需保护",1,1],soldier:["前士兵","战斗强但易冲突",1,1],dog:["流浪狗","警戒危险，提高精神",1,0]};
 const quests=["寻找安全区广播信号","修理通讯设备","找到撤离路线","获得交通工具或建立据点","最终撤离/防御"];
 const sidePool=["救助受伤幸存者","寻找失踪孩子","帮助医生获取药品","解救被困宠物","调查废弃实验室","探索地下避难所","与掠夺者谈判或战斗","帮助农场保护粮仓","寻找发电机燃油","修理海边灯塔信号"];
 let oSel=null,cSel=null,aSel=null,game={},useQty={};
+const BASE_CAPACITY = 30;
+const HUMAN_MAX_CAPACITY = 60;
+const BAG_ITEMS = ["背包","破旧背包","轻便双肩包","标准旅行背包","专业登山包","战术负重包"];
 function C(n,min=0,max=100){return Math.max(min,Math.min(max,Math.round(n)))}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");scrollTo(0,0)}
 function T(m){let x=document.getElementById("toast");x.innerText=m;x.style.display="block";setTimeout(()=>x.style.display="none",2300)}
@@ -237,18 +243,35 @@ function removeShopItem(n){
     const refund=refundOne(n);
     rem(n);
     game.stats.money+=refund;
-    if(n==="背包")game.cap=Math.max(20,game.cap-8);
-    if(n==="破旧背包")game.cap=Math.max(20,game.cap-5);
-    T(`已删除 ${n}，退回 $${refund}`);
+    
+    
+    T(`已删除 ${n}，退回 ¥${refund}`);
   }else{
     if(!confirm(`${n} 是出生点/职业初始物品，删除后不会退款。确定删除？`))return;
     rem(n);
     T(`已删除初始物品：${n}`);
   }
+  recalculateCapacity();
+  if(weight()>game.cap)T(`当前负重 ${weight()}/${game.cap}，已经超重，请删除部分物品`);
   updateShop();
   renderCharacterInfo&&renderCharacterInfo();
 }
 function weight(){return Math.round(Object.entries(game.bag||{}).reduce((s,[n,q])=>s+(items[n]?.[1]||1)*q,0)*10)/10}
+function bestBackpack(){
+  let best=null;
+  for(const n of BAG_ITEMS){
+    if((game.bag||{})[n]>0 && items[n]?.[3]?.capacity){
+      const cap=items[n][3].capacity;
+      if(!best || cap>best.capacity) best={name:n,capacity:cap,weight:items[n][1]};
+    }
+  }
+  return best;
+}
+function recalculateCapacity(){
+  const best=bestBackpack();
+  game.cap=Math.min(HUMAN_MAX_CAPACITY, BASE_CAPACITY + (best?.capacity || 0));
+  return game.cap;
+}
 function mods(m){for(let k in m){if(k=="money")game.stats.money+=m[k];else game.stats[k]=C((game.stats[k]||0)+m[k])}}
 
 function renderCharacterInfo(){
@@ -257,7 +280,7 @@ function renderCharacterInfo(){
   let ck = cSel || game.career;
   let o = ok ? origins[ok] : null;
   let c = ck ? careers[ck] : null;
-  let cap = 20;
+  let cap = BASE_CAPACITY;
   let money = 0;
   let details = [];
   if(o){
@@ -266,8 +289,8 @@ function renderCharacterInfo(){
   }
   if(c){
     money += c.m + (c.mod?.money || 0);
-    if(c.items.includes("背包")) cap += 8;
-    if(c.items.includes("破旧背包")) cap += 5;
+    if(c.items.includes("背包")) cap += 10;
+    if(c.items.includes("破旧背包")) cap += 6;
     details.push(`职业：${c.n}｜技能：${c.skill}｜职业物品：${c.items.join("、")}`);
   }
   if(game && game.stats && game.phase !== "setup"){
@@ -277,19 +300,19 @@ function renderCharacterInfo(){
   document.getElementById("charOrigin").innerText = o ? o.n : "未选择";
   document.getElementById("charCareer").innerText = c ? c.n : "未选择";
   document.getElementById("charMoney").innerText = money;
-  document.getElementById("charCapacity").innerText = cap;
+  document.getElementById("charCapacity").innerText = `${cap} / 上限${HUMAN_MAX_CAPACITY}`;
   document.getElementById("charDetails").innerHTML = details.length ? details.map(x=>`<div>${x}</div>`).join("") : "请选择出生点和职业，系统会在这里实时生成角色开局信息。";
 }
 
 function init(){
 originBox.innerHTML=Object.entries(origins).map(([k,o])=>`<div class="choice" data-o="${k}" onclick="pickO('${k}')"><h3>${o.n}</h3><div>${o.t.map(x=>`<span class=tag>${x}</span>`).join("")}</div><p class=muted>初始资源：${o.r.join("、")}</p><p class=muted>特殊事件：${o.e.join("、")}</p></div>`).join("");
-careerBox.innerHTML=Object.entries(careers).map(([k,c])=>`<div class="choice" data-c="${k}" onclick="pickC('${k}')"><h3>${c.n}</h3><p class=muted>${c.desc}</p><span class=tag>${c.skill}</span><p class=muted>金钱:${c.m}｜物品:${c.items.join("、")}</p></div>`).join("");
+careerBox.innerHTML=Object.entries(careers).map(([k,c])=>`<div class="choice" data-c="${k}" onclick="pickC('${k}')"><h3>${c.n}</h3><p class=muted>${c.desc}</p><span class=tag>${c.skill}</span><p class=muted>现金:${c.m}｜物品:${c.items.join("、")}</p></div>`).join("");
 }
 function pickO(k){oSel=k;document.querySelectorAll("[data-o]").forEach(x=>x.classList.remove("sel"));document.querySelector(`[data-o="${k}"]`).classList.add("sel");renderCharacterInfo()}
 function pickC(k){cSel=k;document.querySelectorAll("[data-c]").forEach(x=>x.classList.remove("sel"));document.querySelector(`[data-c="${k}"]`).classList.add("sel");renderCharacterInfo()}
 function confirmOrigin(){if(!oSel)return T("请选择出生点");show("career")}
 function confirmCareer(){if(!cSel)return T("请选择职业");setup();renderShop();show("shop")}
-function setup(){let o=origins[oSel],c=careers[cSel];game={day:1,max:20,origin:oSel,career:cSel,originName:o.n,careerName:c.n,cap:20,bag:{},purchased:{},paid:{},friends:[],side:[],main:{stage:0,progress:0},lastActionResult:null,ended:false,log:[],stats:{hp:100,hunger:20,thirst:20,hygiene:75,sanity:75,stamina:80,infection:0,money:o.m+c.m,reputation:10,danger:o.d}};mods(o.mod);mods(c.mod);o.r.forEach(x=>add(x));c.items.forEach(x=>add(x));if(has("背包"))game.cap+=8;if(has("破旧背包"))game.cap+=5;game.log.push(`你在${o.n}醒来，职业是${c.n}。灰雨病毒已经摧毁秩序。`);renderCharacterInfo()}
+function setup(){let o=origins[oSel],c=careers[cSel];game={day:1,max:20,origin:oSel,career:cSel,originName:o.n,careerName:c.n,cap:BASE_CAPACITY,bag:{},purchased:{},paid:{},friends:[],side:[],main:{stage:0,progress:0},lastActionResult:null,ended:false,log:[],stats:{hp:100,hunger:20,thirst:20,hygiene:75,sanity:75,stamina:80,infection:0,money:o.m+c.m,reputation:10,danger:o.d}};mods(o.mod);mods(c.mod);o.r.forEach(x=>add(x));c.items.forEach(x=>add(x));recalculateCapacity();game.log.push(`你在${o.n}醒来，职业是${c.n}。灰雨病毒已经摧毁秩序。`);renderCharacterInfo()}
 
 let shopCategory="survival";
 const shopCategories={
@@ -297,22 +320,23 @@ const shopCategories={
   medical:{name:"医疗卫生",items:["绷带","医疗包","止痛药","抗生素","消毒剂","口罩","酒精"]},
   tools:{name:"工具照明",items:["打火机","手电筒","电池","绳子","工具箱","撬棍","胶带","地图"]},
   defense:{name:"防御武器",items:["小刀","铁棍","斧头","警棍","弹药","防护服","简易陷阱材料"]},
-  special:{name:"特殊物资",items:["睡袋","收音机","对讲机","过滤水壶","日记本","音乐播放器","种子","燃油","宠物口粮","背包"]}
+  backpack:{name:"背包扩容",items:["轻便双肩包","标准旅行背包","专业登山包","战术负重包"]},
+  special:{name:"特殊物资",items:["睡袋","收音机","对讲机","过滤水壶","日记本","音乐播放器","种子","燃油","宠物口粮"]}
 };
 const starterPacks=[
-  {name:"基础生存包",price:32,items:["瓶装水","瓶装水","罐头","压缩饼干","绷带"],desc:"最稳妥，适合大多数开局。"},
-  {name:"医疗防感染包",price:42,items:["绷带","消毒剂","抗生素","口罩"],desc:"适合医院、城市、商场等高感染地点。"},
-  {name:"探索工具包",price:46,items:["手电筒","电池","撬棍","地图"],desc:"适合搜索建筑和推进主线。"},
-  {name:"据点防御包",price:50,items:["铁棍","绳子","简易陷阱材料","胶带"],desc:"适合古堡、农村、别墅等据点玩法。"}
+  {name:"基础生存包",price:55,items:["瓶装水","瓶装水","罐头","压缩饼干","绷带"],desc:"最稳妥，适合大多数开局。"},
+  {name:"医疗防感染包",price:120,items:["绷带","消毒剂","抗生素","口罩"],desc:"适合医院、城市、商场等高感染地点。"},
+  {name:"探索工具包",price:135,items:["手电筒","电池","撬棍","地图"],desc:"适合搜索建筑和推进主线。"},
+  {name:"据点防御包",price:180,items:["铁棍","绳子","简易陷阱材料","胶带"],desc:"适合古堡、农村、别墅等据点玩法。"}
 ];
 function setShopCategory(k){shopCategory=k;renderShop()}
 function renderShop(){
   const cat=shopCategories[shopCategory]||shopCategories.survival;
   shopBox.innerHTML=`
-    <div class="shopHint">负重已重新平衡：药品和信息物品更轻，工具、武器、燃油更重。建议先保证 2–3 天水和食物，再选择一类核心装备。买错可删除并退款。</div>
+    <div class="shopHint"><b>四种可购买背包：</b>背包扩容栏提供四种背包：轻便双肩包（+8）、标准旅行背包（+16）、专业登山包（+24）、战术负重包（+30）。多个背包不叠加，只取最高容量；人体最大负重上限为60。<br><b>购买流程：</b>先买水和食物，再根据职业选择医疗、工具、防御、背包扩容或特殊物资。买错可在右侧背包删除。<br>价格已按现实生活尺度重做：水和食物较便宜，医疗和工具中等，武器、防护服、手机、相机等高价值物品昂贵。右侧背包会显示物品名称、数量、负重和可退款金额；本版背包分为四种，容量越大越贵也越重；多个背包不叠加，只按容量最高者生效。最大负重限制为 60，避免无限囤物资；买错可删除并退款。</div>
     <h3>推荐套装</h3>
     <div class="packGrid">
-      ${starterPacks.map(p=>`<div class="pack"><b>${p.name}</b><div class="muted">${p.desc}</div><div class="kv"><span>价格</span><b>$${p.price}</b></div><div class="muted">${p.items.join("、")}</div><button class="btn" onclick="buyPack('${p.name}')">购买套装</button></div>`).join("")}
+      ${starterPacks.map(p=>`<div class="pack"><b>${p.name}</b><div class="muted">${p.desc}</div><div class="kv"><span>价格</span><b>¥${p.price}</b></div><div class="muted">${p.items.join("、")}</div><button class="btn" onclick="buyPack('${p.name}')">购买套装</button></div>`).join("")}
     </div>
     <h3>分类单品</h3>
     <div class="shopTabs">
@@ -321,7 +345,11 @@ function renderShop(){
     <div>
       ${cat.items.map(n=>{
         const v=items[n];
-        return `<div class="itemSimple"><div><b>${n}</b><div class="weight">${v[2]}｜负重 ${v[1]}</div></div><span class="price">$${v[0]}</span><button class="btn" onclick="buy('${n}')">买</button></div>`
+        if(!v){
+          return `<div class="itemSimple"><div><b>${n}</b><div class="weight">物品数据缺失，请检查 items 定义</div></div><span class="price">-</span><button class="btn" disabled>不可购买</button></div>`;
+        }
+        const extra = v[2]==="bag" ? `｜容量 +${v[3].capacity}` : "";
+        return `<div class="itemSimple"><div><b>${n}</b><div class="weight">${v[2]}｜负重 ${v[1]}${extra}</div></div><span class="price">¥${v[0]}</span><button class="btn" onclick="buy('${n}')">买</button></div>`;
       }).join("")}
     </div>`;
   updateShop();
@@ -335,16 +363,23 @@ function buyPack(packName){
   game.stats.money-=p.price;
   const each=Math.max(1,Math.round(p.price/p.items.length));
   p.items.forEach(n=>{add(n);recordPurchase(n,each)});
+  recalculateCapacity();
   updateShop();
 }
 function buy(n){
   let it=items[n];
+  if(!it)return T("物品数据缺失，暂时无法购买");
   if(game.stats.money<it[0])return T("钱不够");
-  if(weight()+it[1]>game.cap)return T("背包太重");
+  const isBag = it[2]==="bag" && it[3]?.capacity;
+  if(isBag){
+    if(weight()+it[1]>HUMAN_MAX_CAPACITY)return T("超过人体可承受最大负重，无法购买更多背包");
+  }else{
+    if(weight()+it[1]>game.cap)return T("背包太重");
+  }
   game.stats.money-=it[0];
   add(n);
   recordPurchase(n,it[0]);
-  if(it[3].capacity)game.cap+=it[3].capacity;
+  if(isBag)recalculateCapacity();
   updateShop();
 }
 function updateShop(){
@@ -356,6 +391,8 @@ function updateShop(){
   const waterCount=["瓶装水","净水片"].reduce((s,n)=>s+(game.bag[n]||0),0);
   bagS.innerHTML=`
     <div class="bagSummary">
+      <div class="kv"><span>有效背包</span><b>${bestBackpack()?`${bestBackpack().name}（+${bestBackpack().capacity}）`:"无"}</b></div>
+      <div class="kv"><span>人体上限</span><b>${HUMAN_MAX_CAPACITY}</b></div>
       <div class="kv"><span>水资源</span><b>${waterCount}</b></div>
       <div class="kv"><span>食物</span><b>${foodCount}</b></div>
       <div class="kv"><span>医疗品</span><b>${entries.filter(([n])=>items[n]?.[2]==="medical").reduce((s,[n,q])=>s+q,0)}</b></div>
@@ -363,10 +400,24 @@ function updateShop(){
     ${entries.map(([n,q])=>{
       const canRefund=(game.purchased||{})[n]>0;
       const avgRefund=canRefund?Math.max(0,Math.round((game.paid[n]||0)/(game.purchased[n]||1))):0;
-      return `<div class="bagItem"><span>${n}×${q}</span><span class="refundText">${canRefund?`可退 $${avgRefund}`:"初始物品"}</span><button class="removeBtn" onclick="removeShopItem('${n}')">删除</button></div>`;
+      return `<div class="bagItem">
+        <span><b>${n}</b> × ${q}<br><small class="muted">单件负重 ${items[n]?.[1] ?? 1}</small></span>
+        <span class="refundText">${canRefund?`可退 ¥${avgRefund}`:"初始物品"}</span>
+        <button class="removeBtn" onclick="removeShopItem('${n}')">删除</button>
+      </div>`;
     }).join("")||"<div>空</div>"}`;
 }
-function startGame(){newDay();render();show("game")}
+function startGame(){
+  const foodCount=["罐头","压缩饼干","能量棒"].reduce((s,n)=>s+(game.bag[n]||0),0);
+  const waterCount=["瓶装水","净水片"].reduce((s,n)=>s+(game.bag[n]||0),0);
+  if(foodCount<1 || waterCount<1){
+    const ok=confirm("你的水或食物不足 1 份。进入第1天后每天会固定消耗 1 份食物和 1 份水；不足会增加饥饿/口渴并扣状态。仍然进入吗？");
+    if(!ok)return;
+  }
+  newDay();
+  render();
+  show("game");
+}
 function stage(){return game.day<=5?"早期":game.day<=10?"中期":game.day<=15?"后期":"最终阶段"}
 function mainStoryText(){
   const d=game.day;
@@ -697,10 +748,26 @@ function useSelectedItem(n){
   if(p){p.classList.add("active");renderUsePanel();}
 }
 function restAct(){custom.value="我选择保守休息，整理物资，尽量不制造噪音。";submitAct()}
+
+function statLabel(k){
+  return {
+    hp:"生命值",
+    hunger:"饥饿值",
+    thirst:"口渴值",
+    hygiene:"卫生值",
+    sanity:"精神状态",
+    stamina:"体力",
+    infection:"感染风险",
+    money:"现金",
+    reputation:"声望",
+    danger:"危险等级"
+  }[k] || k;
+}
+
 function title(surv){let s=game.stats;if(!surv){if(s.infection>=80)return"感染者";if(s.sanity<=20)return"精神崩溃者";if(s.hunger>=90||s.thirst>=90)return"资源耗尽者";return"被遗忘的人"}if(game.main.stage>=4&&s.hp>70&&s.reputation>50)return"完美生还者";if(!game.friends.length)return"孤狼求生者";if(s.reputation>65)return"人性守护者";if(game.career=="doctor"&&s.infection<25)return"废土医生";if(Object.keys(game.bag).length>8)return"资源大师";if(game.career=="merchant")return"黑暗交易者";if(s.sanity>70&&game.main.stage>=3)return"冷静指挥官";return"末日幸存者"}
-function end(surv,why=""){let ti=title(surv),txt=surv?`第20天，远处终于不再只有低吼。你以“${ti}”的身份活了下来。你的选择留下痕迹：伙伴、物资、伤口、声望，以及那些没能救下的人。`:`${why}。你的故事停在第${game.day}天，称号“${ti}”。`;endingBox.innerHTML=`<h2>${surv?"生还结局":"失败结局"}｜${ti}</h2><p>${txt}</p><h3>最终状态</h3><div class=grid>${Object.entries(game.stats).map(([k,v])=>`<div class=kv><span>${k}</span><b>${v}</b></div>`).join("")}</div><h3>历程总结</h3><div class=log style="max-height:420px">${game.log.map(x=>`<div>${x}</div>`).join("")}</div><button class="btn primary" onclick="resetGame()">重新开始</button>`;localStorage.removeItem("zombieSave");show("ending")}
+function end(surv,why=""){let ti=title(surv),txt=surv?`第20天，远处终于不再只有低吼。你以“${ti}”的身份活了下来。你的选择留下痕迹：伙伴、物资、伤口、声望，以及那些没能救下的人。`:`${why}。你的故事停在第${game.day}天，称号“${ti}”。`;endingBox.innerHTML=`<h2>${surv?"生还结局":"失败结局"}｜${ti}</h2><p>${txt}</p><h3>最终状态</h3><div class=grid>${Object.entries(game.stats).map(([k,v])=>`<div class=kv><span>${statLabel(k)}</span><b>${v}</b></div>`).join("")}</div><h3>历程总结</h3><div class=log style="max-height:420px">${game.log.map(x=>`<div>${x}</div>`).join("")}</div><button class="btn primary" onclick="resetGame()">重新开始</button>`;localStorage.removeItem("zombieSave");show("ending")}
 function saveGame(showMsg=true){localStorage.setItem("zombieSave",JSON.stringify(game));if(showMsg)T("已保存")}
-function loadGame(){let r=localStorage.getItem("zombieSave");if(!r)return T("没有存档");game=JSON.parse(r);oSel=game.origin;cSel=game.career;renderCharacterInfo();newDay();render();show("game")}
+function loadGame(){let r=localStorage.getItem("zombieSave");if(!r)return T("没有存档");game=JSON.parse(r);game.cap=Math.max(game.cap||BASE_CAPACITY,BASE_CAPACITY);recalculateCapacity();oSel=game.origin;cSel=game.career;renderCharacterInfo();newDay();render();show("game")}
 function resetGame(){if(confirm("确定重开？")){localStorage.removeItem("zombieSave");location.reload()}}
 init();renderCharacterInfo();
 </script>
